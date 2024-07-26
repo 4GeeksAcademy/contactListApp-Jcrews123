@@ -1,29 +1,44 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
 import PropTypes from "prop-types";
-
+import { Link, useParams, useNavigate, } from "react-router-dom";
 import { Context } from "../store/appContext";
-
 import "../../styles/demo.css";
 
-export const Demo = (props) => {
+export const Edit = (props) => {
 	const { store, actions } = useContext(Context);
+	const params = useParams();
 	const navigate = useNavigate()
+
 	const [inputValues, setInputValues] = useState({
-		nameInput: '',
-		emailInput: '',
-		phoneInput: '',
-		addressInput: ''
+		nameInput: "",
+		emailInput: "",
+		phoneInput: "",
+		addressInput: "",
+		id: ""
 	});
-	function addContacts(e) {
+	function updateContact(e) {
 		e.preventDefault()
-		actions.addContacts(inputValues.nameInput, inputValues.emailInput, inputValues.phoneInput, inputValues.addressInput)
-		navigate("/")
+		actions.updateContact(inputValues.nameInput, inputValues.emailInput, inputValues.phoneInput, inputValues.addressInput, inputValues.id)
+			.then(() => navigate("/"))
 	}
+	useEffect(() => {
+		const contactData = store.contacts.find((contact) => {
+			return contact.id.toString() === params.id
+		})
+		if (contactData) {
+			setInputValues({
+				nameInput: contactData.name || "",
+				emailInput: contactData.email || "",
+				phoneInput: contactData.phone || "",
+				addressInput: contactData.address || "",
+				id: contactData.id || ""
+			});
+		}
+	}, [store.contacts])
 	return (
 		<div className="container">
 
-			<h1 className="text-center mt-5">Add a new contact</h1>
+			<h1 className="text-center mt-5">{"this is the id " + params.id}</h1>
 			<form>
 				<div className="form-group">
 					<label>Full Name</label>
@@ -71,10 +86,14 @@ export const Demo = (props) => {
 				<button
 					type="button"
 					className="btn btn-primary form-control mt-3"
-					onClick={(e) => addContacts(e)}
+					onClick={(e) => updateContact(e)}
 				>save
 				</button>
 			</form>
 		</div>
 	);
+};
+
+Edit.propTypes = {
+	match: PropTypes.object
 };
